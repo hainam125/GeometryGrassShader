@@ -9,11 +9,13 @@ Shader "Roystan/Grass" {
 		_BladeWidthRandom("Blade Width Random", Float) = 0.02
 		_BladeHeight("Blade Height", Float) = 0.5
 		_BladeHeightRandom("Blade Height Random", Float) = 0.3
+		_TessellationUniform("Tessellation Uniform", Range(1, 64)) = 1
     }
 
 	CGINCLUDE
 		#include "UnityCG.cginc"
 		#include "Autolight.cginc"
+		#include "Shaders/CustomTessellation.cginc"
 
 		float _BendRotationRandom;
 		float _BladeHeight;
@@ -24,18 +26,6 @@ Shader "Roystan/Grass" {
 		struct geometryOutput {
 			float4 pos : SV_POSITION;
 			float2 uv : TEXCOORD0;
-		};
-
-		struct vertexInput {
-			float4 vertex : POSITION;
-			float3 normal : NORMAL;
-			float4 tangent : TANGENT;
-		};
-
-		struct vertexOutput {
-			float4 vertex : SV_POSITION;
-			float3 normal : NORMAL;
-			float4 tangent : TANGENT;
 		};
 
 		// Simple noise function, sourced from http://answers.unity.com/answers/624136/view.html
@@ -68,14 +58,6 @@ Shader "Roystan/Grass" {
 			geometryOutput o;
 			o.pos = UnityObjectToClipPos(pos);
 			o.uv = uv;
-			return o;
-		}
-
-		vertexOutput vert(vertexInput v) {
-			vertexOutput o;
-			o.vertex = v.vertex;
-			o.normal = v.normal;
-			o.tangent = v.tangent;
 			return o;
 		}
 
@@ -120,6 +102,8 @@ Shader "Roystan/Grass" {
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma geometry geo
+			#pragma hull hull
+			#pragma domain domain
 
 			#pragma target 4.6
             
